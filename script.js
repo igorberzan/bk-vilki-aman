@@ -788,11 +788,12 @@ function getLandingCell(rows, rowIndex, colIndex) {
   return row && colIndex < row.length ? row[colIndex] : null;
 }
 
-function formatPercent(value) {
+function formatPercent(value, fromSheet = false) {
   if (value == null || value === '') return '—';
   const str = String(value).trim().replace(',', '.');
-  const num = parseFloat(str);
+  let num = parseFloat(str);
   if (Number.isNaN(num)) return '—';
+  if (fromSheet) num = num * 100;
   return num.toFixed(2) + '%';
 }
 
@@ -843,11 +844,11 @@ async function loadLandingCircleData() {
     const bestDayRaw = getLandingCell(adminRows, 3, 10);       // K5 — строка 5 (Макс % день)
     const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3
 
-    const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(totalCapitalRaw) : null;
-    const totalEarned = totalEarnedRaw != null && totalEarnedRaw !== '' ? parseFloat(totalEarnedRaw) : null;
-    const avgPercent = formatPercent(avgPercentRaw);
-    const worstDay = formatPercent(worstDayRaw);
-    const bestDay = formatPercent(bestDayRaw);
+    const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(String(totalCapitalRaw).replace(',', '.')) : null;
+    const totalEarned = totalEarnedRaw != null && totalEarnedRaw !== '' ? parseFloat(String(totalEarnedRaw).replace(',', '.')) : null;
+    const avgPercent = formatPercent(avgPercentRaw, true);
+    const worstDay = formatPercent(worstDayRaw, true);
+    const bestDay = formatPercent(bestDayRaw, true);
     const activeSlots = activeSlotsRaw != null && activeSlotsRaw !== '' ? String(activeSlotsRaw).trim() : '—';
 
     const capStr = totalCapital != null ? formatMoney(totalCapital) : null;
