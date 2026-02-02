@@ -834,11 +834,12 @@ async function loadLandingCircleData() {
     const adminRows = parseSheetRows(adminData);
     const publicRows = parseSheetRows(publicData);
 
-    const totalCapitalRaw = getLandingCell(adminRows, 0, 12);   // ADMIN M2 — строка 2 листа
-    const totalEarnedRaw = getLandingCell(adminRows, 1, 12);   // ADMIN M3 — строка 3
-    const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // ADMIN M4 — строка 4 (средняя доходность)
-    const worstDayRaw = getLandingCell(adminRows, 0, 10);     // ADMIN K2 — строка 2 (худший день)
-    const bestDayRaw = getLandingCell(adminRows, 1, 10);       // ADMIN K3 — строка 3 (лучший день)
+    // Лист ADMIN: строка 1 = заголовок (index 0), строка 2 = index 1 (M2, K2), строка 3 = index 2 (M3, K3), строка 4 = index 3 (M4).
+    const totalCapitalRaw = getLandingCell(adminRows, 1, 12);   // ADMIN M2 — строка 2
+    const totalEarnedRaw = getLandingCell(adminRows, 2, 12);   // ADMIN M3 — строка 3
+    const avgPercentRaw = getLandingCell(adminRows, 3, 12);   // ADMIN M4 — строка 4 (средняя доходность)
+    const worstDayRaw = getLandingCell(adminRows, 1, 10);     // ADMIN K2 — строка 2 (худший день)
+    const bestDayRaw = getLandingCell(adminRows, 2, 10);       // ADMIN K3 — строка 3 (лучший день)
     const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3
 
     const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(totalCapitalRaw) : null;
