@@ -767,10 +767,25 @@ function initCircles() {
     circle.addEventListener('mouseenter', () => {
       container.dataset.hover = circleNum;
     });
+
+    circle.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (container.dataset.hover === circleNum) {
+        delete container.dataset.hover;
+      } else {
+        container.dataset.hover = circleNum;
+      }
+    });
   });
 
   container.addEventListener('mouseleave', () => {
     delete container.dataset.hover;
+  });
+
+  document.addEventListener('click', (e) => {
+    if (container.dataset.hover && !container.contains(e.target)) {
+      delete container.dataset.hover;
+    }
   });
 }
 
