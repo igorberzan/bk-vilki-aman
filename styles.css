@@ -256,7 +256,7 @@ body {
 .circle-wrapper {
   position: relative;
   cursor: pointer;
-  width: 160px;
+  width: 168px;
   flex-shrink: 0;
   z-index: 1;
   transition: transform 0.4s ease, opacity 0.5s ease;
@@ -271,7 +271,7 @@ body {
 
 /* Круг 1 наведён: круг 2 → на место 3, круг 3 исчезает */
 .circles-container[data-hover="1"] .circle-wrapper[data-circle="2"] {
-  transform: translateX(200px);
+  transform: translateX(210px);
 }
 
 .circles-container[data-hover="1"] .circle-wrapper[data-circle="3"] {
@@ -287,7 +287,7 @@ body {
 
 /* Круг 3 наведён: круг 2 → на место 1, круг 1 исчезает */
 .circles-container[data-hover="3"] .circle-wrapper[data-circle="2"] {
-  transform: translateX(-200px);
+  transform: translateX(-210px);
 }
 
 .circles-container[data-hover="3"] .circle-wrapper[data-circle="1"] {
@@ -295,11 +295,11 @@ body {
   pointer-events: none;
 }
 
-/* Основной круг — поверх плашки */
+/* Основной круг — поверх плашки (+5%) */
 .circle-main {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 168px;
+  height: 168px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -372,12 +372,12 @@ body {
   color: var(--accent);
 }
 
-/* Обёртка плашки: выезжает от середины круга (не видно с обратной стороны) */
+/* Обёртка плашки: выезжает от середины круга (+5%) */
 .capsule-inner {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  height: 160px;
+  height: 168px;
   z-index: 0;
   pointer-events: none;
 }
@@ -389,10 +389,10 @@ body {
   pointer-events: auto;
 }
 
-/* Плашка вправо (круги 1 и 2): начинается от центра круга (80px), вправо 280px */
+/* Плашка вправо (круги 1 и 2): от центра круга (84px), вправо 294px (+5%) */
 [data-direction="right"] .capsule-inner {
-  left: 80px;
-  width: 280px;
+  left: 84px;
+  width: 294px;
   transform-origin: 0 50%;
   transform: translateY(-50%) scaleX(0);
 }
@@ -403,11 +403,11 @@ body {
   transform: translateY(-50%) scaleX(1);
 }
 
-/* Плашка влево (круг 3): заканчивается в центре круга (80px от правого края) */
+/* Плашка влево (круг 3): заканчивается в центре круга (84px от правого края, +5%) */
 [data-direction="left"] .capsule-inner {
-  right: 80px;
+  right: 84px;
   left: auto;
-  width: 280px;
+  width: 294px;
   transform-origin: 100% 50%;
   transform: translateY(-50%) scaleX(0);
 }
@@ -421,13 +421,13 @@ body {
   transition: transform 0.4s ease;
 }
 
-/* Плашка: ровная тонкая зелёная обводка, без вращения */
+/* Плашка: тонкая зелёная обводка (+5%) */
 .capsule-background {
   position: absolute;
   top: 0;
   left: 0;
-  height: 160px;
-  border-radius: 80px;
+  height: 168px;
+  border-radius: 84px;
   border: 2px solid var(--accent);
   z-index: 0;
   transition: none;
@@ -439,31 +439,31 @@ body {
   content: '';
   position: absolute;
   inset: 2px;
-  border-radius: 78px;
+  border-radius: 82px;
   background: var(--bg-card);
   z-index: 0;
 }
 
 [data-direction="right"] .capsule-background {
-  width: 280px;
+  width: 294px;
 }
 
 [data-direction="left"] .capsule-background {
   left: auto;
   right: 0;
-  width: 280px;
-  border-radius: 80px;
+  width: 294px;
+  border-radius: 84px;
 }
 
 [data-direction="left"] .capsule-background::after {
-  border-radius: 78px;
+  border-radius: 82px;
 }
 
-/* Текст плашки — по центру видимой части (не под кругом), чтобы ничего не скрывалось */
+/* Текст плашки — по центру видимой части (+5%) */
 .capsule-content {
   position: absolute;
   top: 50%;
-  width: 180px;
+  width: 189px;
   max-width: calc(100% - 40px);
   padding: 20px 16px;
   opacity: 0;
@@ -474,15 +474,15 @@ body {
   text-align: center;
 }
 
-/* Плашка вправо (1-й и 2-й круг): центр видимой части — от 80px до 280px */
+/* Плашка вправо (1-й и 2-й круг): центр видимой части */
 [data-direction="right"] .capsule-content {
-  left: 180px;
+  left: 189px;
   transform: translate(-50%, -50%);
 }
 
-/* Плашка влево (3-й круг): центр видимой части — от 0 до 200px */
+/* Плашка влево (3-й круг): центр видимой части */
 [data-direction="left"] .capsule-content {
-  left: 100px;
+  left: 105px;
   transform: translate(-50%, -50%);
 }
 
@@ -1062,8 +1062,8 @@ body {
   }
 
   .circle-main {
-    width: 130px;
-    height: 130px;
+    width: 137px;
+    height: 137px;
   }
 
   .circle-value {

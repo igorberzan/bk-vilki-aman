@@ -795,6 +795,36 @@ function formatPercent(value) {
   return num.toFixed(2) + '%';
 }
 
+const LANDING_CACHE_KEY = 'bk_vilki_landing';
+const LANDING_CACHE_TTL_MS = 60 * 1000;
+
+function getLandingCache() {
+  try {
+    const raw = sessionStorage.getItem(LANDING_CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data.ts || Date.now() - data.ts > LANDING_CACHE_TTL_MS) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setLandingCache(payload) {
+  try {
+    payload.ts = Date.now();
+    sessionStorage.setItem(LANDING_CACHE_KEY, JSON.stringify(payload));
+  } catch (e) {}
+}
+
+function applyLandingCache(data) {
+  if (!data) return;
+  const keys = ['total-capital', 'total-earned', 'avg-percent', 'active-slots', 'best-day', 'worst-day'];
+  keys.forEach(key => {
+    if (data[key] != null) setLandingValue(key, data[key]);
+  });
+}
+
 async function loadLandingCircleData() {
   try {
     const [adminData, publicData] = await Promise.all([
@@ -818,12 +848,23 @@ async function loadLandingCircleData() {
     const bestDay = formatPercent(bestDayRaw);
     const activeSlots = activeSlotsRaw != null && activeSlotsRaw !== '' ? String(activeSlotsRaw).trim() : '—';
 
-    setLandingValue('total-capital', totalCapital != null ? formatMoney(totalCapital) : null);
-    setLandingValue('total-earned', totalEarned != null ? formatMoney(totalEarned, true) : null);
+    const capStr = totalCapital != null ? formatMoney(totalCapital) : null;
+    const earnedStr = totalEarned != null ? formatMoney(totalEarned, true) : null;
+    setLandingValue('total-capital', capStr);
+    setLandingValue('total-earned', earnedStr);
     setLandingValue('avg-percent', avgPercent !== '—' ? avgPercent : null);
     setLandingValue('active-slots', activeSlots);
     setLandingValue('best-day', bestDay !== '—' ? bestDay : null);
     setLandingValue('worst-day', worstDay !== '—' ? worstDay : null);
+
+    setLandingCache({
+      'total-capital': capStr,
+      'total-earned': earnedStr,
+      'avg-percent': avgPercent !== '—' ? avgPercent : null,
+      'active-slots': activeSlots,
+      'best-day': bestDay !== '—' ? bestDay : null,
+      'worst-day': worstDay !== '—' ? worstDay : null
+    });
   } catch (e) {
     console.warn('Данные для кругов лендинга не загружены:', e.message);
   }
@@ -844,6 +885,7 @@ function setLandingValue(key, value) {
 document.addEventListener('DOMContentLoaded', () => {
   createDots();
   initCircles();
+  applyLandingCache(getLandingCache());
   loadLandingCircleData();
   checkSession();
   const savedUser = localStorage.getItem('bk_vilki_user');
