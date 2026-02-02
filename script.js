@@ -110,6 +110,10 @@ function showDashboard(userName) {
   localStorage.setItem('bk_vilki_user', JSON.stringify({ name: userName }));
 
   loadAllData().then(() => animateDashboardCards());
+  if (window.landingRefreshInterval) {
+    clearInterval(window.landingRefreshInterval);
+    window.landingRefreshInterval = null;
+  }
   if (window.dashboardRefreshInterval) clearInterval(window.dashboardRefreshInterval);
   window.dashboardRefreshInterval = setInterval(loadAllData, 30000);
 }
@@ -122,6 +126,8 @@ function showLanding() {
     clearInterval(window.dashboardRefreshInterval);
     window.dashboardRefreshInterval = null;
   }
+  if (window.landingRefreshInterval) clearInterval(window.landingRefreshInterval);
+  window.landingRefreshInterval = setInterval(loadLandingCircleData, 60000);
 }
 
 function animateDashboardCards() {
@@ -844,6 +850,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedUser && dashboard.classList.contains('active')) {
     loadAllData();
     window.dashboardRefreshInterval = setInterval(loadAllData, 30000);
+  } else {
+    window.landingRefreshInterval = setInterval(loadLandingCircleData, 60000);
   }
 });
 
