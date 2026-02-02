@@ -232,43 +232,37 @@ body {
   margin-bottom: 16px;
   position: relative;
   display: inline-block;
-}
-
-.hero-title-base {
   color: var(--accent);
+  overflow: hidden;
 }
 
-.hero-title-shine {
+/* Движущаяся белая полоса перелива поверх заголовка */
+.hero-title::after {
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  bottom: 0;
+  width: 50%;
   background: linear-gradient(
     90deg,
-    var(--accent) 0%,
-    var(--accent) 25%,
-    var(--text-primary) 40%,
-    #fff 50%,
-    var(--text-primary) 60%,
-    var(--accent) 75%,
-    var(--accent) 100%
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.25) 70%,
+    transparent 100%
   );
-  background-size: 400% 100%;
-  background-position: 0% 50%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: heroTitleShimmer 5s ease-in-out infinite alternate;
+  mix-blend-mode: lighten;
+  animation: heroTitleShine 5s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
-@keyframes heroTitleShimmer {
+@keyframes heroTitleShine {
   0% {
-    background-position: 0% 50%;
+    transform: translateX(0);
   }
   100% {
-    background-position: 100% 50%;
+    transform: translateX(100%);
   }
 }
 
