@@ -1074,6 +1074,13 @@ body {
   margin-top: 12px;
 }
 
+/* Мобильная анимация «подглядывания» плашки */
+@keyframes capsulePeek {
+  0%, 100% { transform: translateY(-50%) scaleX(0); }
+  45% { transform: translateY(-50%) scaleX(0.12); }
+  55% { transform: translateY(-50%) scaleX(0.12); }
+}
+
 /* ========================================
    АДАПТИВНОСТЬ
 ======================================== */
@@ -1097,11 +1104,13 @@ body {
   .circle-wrapper {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    transition: transform 0.35s ease;
   }
 
   .circle-main {
     width: 137px;
     height: 137px;
+    transition: transform 0.35s ease;
   }
 
   .circle-value {
@@ -1119,27 +1128,57 @@ body {
     pointer-events: auto;
   }
 
-  /* Плашка на мобильных всегда вправо: базовая позиция (как right) */
+  /* При тапе: выбранный круг сдвигается влево и чуть увеличивается */
+  .circles-container[data-hover="1"] .circle-wrapper[data-circle="1"],
+  .circles-container[data-hover="2"] .circle-wrapper[data-circle="2"],
+  .circles-container[data-hover="3"] .circle-wrapper[data-circle="3"] {
+    transform: translateX(-72px);
+  }
+
+  .circles-container[data-hover="1"] .circle-wrapper[data-circle="1"] .circle-main,
+  .circles-container[data-hover="2"] .circle-wrapper[data-circle="2"] .circle-main,
+  .circles-container[data-hover="3"] .circle-wrapper[data-circle="3"] .circle-main {
+    transform: scale(1.08);
+  }
+
+  /* Плашка на мобильных: высота под круг 137px */
   .capsule-inner {
     height: 137px;
+    transition: transform 0.4s ease;
   }
 
+  /* По умолчанию — лёгкое «подглядывание» (не выбрано) */
   [data-direction="right"] .capsule-inner {
     left: 69px;
-    width: min(260px, calc(100vw - 137px - 40px));
+    width: min(294px, calc(100vw - 90px));
+    transform-origin: 0 50%;
+    transform: translateY(-50%) scaleX(0);
+    animation: capsulePeek 3s ease-in-out infinite;
   }
 
-  /* Круг 3 на мобильных — плашка тоже вправо */
   [data-direction="left"] .capsule-inner {
     right: auto;
     left: 69px;
-    width: min(260px, calc(100vw - 137px - 40px));
+    width: min(294px, calc(100vw - 90px));
     transform-origin: 0 50%;
     transform: translateY(-50%) scaleX(0);
+    animation: capsulePeek 3s ease-in-out infinite;
   }
 
+  .circle-wrapper[data-circle="2"] .capsule-inner {
+    animation-delay: 0.4s;
+  }
+
+  .circle-wrapper[data-circle="3"] .capsule-inner {
+    animation-delay: 0.8s;
+  }
+
+  /* При выборе: плашка открывается полностью, анимация peek отключается */
+  .circles-container[data-hover="1"] .circle-wrapper[data-circle="1"] .capsule-inner,
+  .circles-container[data-hover="2"] .circle-wrapper[data-circle="2"] .capsule-inner,
   .circles-container[data-hover="3"] .circle-wrapper[data-circle="3"] .capsule-inner {
     transform: translateY(-50%) scaleX(1);
+    animation: none;
   }
 
   .capsule-background {
@@ -1155,7 +1194,7 @@ body {
   [data-direction="left"] .capsule-background {
     left: 0;
     right: auto;
-    width: min(260px, calc(100vw - 137px - 40px));
+    width: min(294px, calc(100vw - 90px));
     border-radius: 68px;
   }
 
@@ -1163,15 +1202,27 @@ body {
     border-radius: 66px;
   }
 
+  /* Текст плашки как на ПК: те же размеры и отступы, по центру плашки */
   .capsule-content {
-    width: 160px;
-    padding: 14px 12px;
+    width: 189px;
+    max-width: calc(100% - 40px);
+    padding: 20px 16px;
     left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
   }
 
   [data-direction="right"] .capsule-content,
   [data-direction="left"] .capsule-content {
     left: 50%;
+  }
+
+  .capsule-content h4 {
+    font-size: 0.875rem;
+  }
+
+  .capsule-content p {
+    font-size: 0.875rem;
   }
 
   .modal {
