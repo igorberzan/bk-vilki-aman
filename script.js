@@ -776,9 +776,9 @@ function initCircles() {
 
 // ========================================
 // ЛЕНДИНГ — ДАННЫЕ КРУГОВ ИЗ ТАБЛИЦЫ
-// ADMIN M2=общий капитал, M3=всего заработано, M4=средняя доходность %,
-// ADMIN K2=худший день %, K3=лучший день %. PUBLIC A3=активных слотов.
-// Строки 0-based: строка 2 = index 1, строка 3 = index 2, строка 4 = index 3.
+// Круг 1: ADMIN M2. Круг 2: ADMIN M3. Круг 3: ADMIN M4.
+// Плашка 1: PUBLIC A3 (активных слотов). Плашка 3: ADMIN K2 (худший день), K3 (лучший день).
+// Строки в API: строка 2 листа = index 0, строка 3 = index 1, строка 4 = index 2.
 // Столбцы: A=0, K=10, M=12.
 // ========================================
 
@@ -804,12 +804,12 @@ async function loadLandingCircleData() {
     const adminRows = parseSheetRows(adminData);
     const publicRows = parseSheetRows(publicData);
 
-    const totalCapitalRaw = getLandingCell(adminRows, 1, 12);   // ADMIN M2
-    const totalEarnedRaw = getLandingCell(adminRows, 2, 12);   // ADMIN M3
-    const avgPercentRaw = getLandingCell(adminRows, 3, 12);    // ADMIN M4
-    const worstDayRaw = getLandingCell(adminRows, 1, 10);     // ADMIN K2
-    const bestDayRaw = getLandingCell(adminRows, 2, 10);      // ADMIN K3
-    const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3
+    const totalCapitalRaw = getLandingCell(adminRows, 0, 12);   // ADMIN M2 (строка 2 листа)
+    const totalEarnedRaw = getLandingCell(adminRows, 1, 12);   // ADMIN M3 (строка 3)
+    const avgPercentRaw = getLandingCell(adminRows, 2, 12);    // ADMIN M4 (строка 4)
+    const worstDayRaw = getLandingCell(adminRows, 0, 10);     // ADMIN K2
+    const bestDayRaw = getLandingCell(adminRows, 1, 10);      // ADMIN K3
+    const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3 (строка 3 листа)
 
     const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(totalCapitalRaw) : null;
     const totalEarned = totalEarnedRaw != null && totalEarnedRaw !== '' ? parseFloat(totalEarnedRaw) : null;
