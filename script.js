@@ -851,12 +851,12 @@ async function loadLandingCircleData() {
     const adminRows = parseSheetRows(adminData);
     const publicRows = parseSheetRows(publicData);
 
-    // Лист ADMIN: в ответе API строка 2 = index 0, строка 3 = 1, строка 4 = 2, строка 5 = 3 (строка 1 не приходит).
+    // Лист ADMIN: строка 2 = index 0, строка 3 = 1, строка 4 = 2, строка 5 = 3 или 4 (K5 = Макс % день).
     const totalCapitalRaw = getLandingCell(adminRows, 0, 12);   // M2 — строка 2
     const totalEarnedRaw = getLandingCell(adminRows, 1, 12);   // M3 — строка 3
     const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // M4 — строка 4 (средняя доходность)
     const worstDayRaw = getLandingCell(adminRows, 2, 10);     // K4 — строка 4 (Мин % день)
-    const bestDayRaw = getLandingCell(adminRows, 3, 10);       // K5 — строка 5 (Макс % день)
+    const bestDayRaw = getLandingCell(adminRows, 4, 10) ?? getLandingCell(adminRows, 3, 10);   // K5 — строка 5 (Макс % день)
     const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3
 
     const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(String(totalCapitalRaw).replace(',', '.')) : null;
@@ -891,9 +891,7 @@ async function loadLandingCircleData() {
 function setLandingValue(key, value) {
   const el = document.querySelector(`[data-landing="${key}"]`);
   if (!el) return;
-  if (value != null && value !== '') {
-    el.textContent = value;
-  }
+  el.textContent = (value != null && value !== '') ? value : '—';
 }
 
 // ========================================
