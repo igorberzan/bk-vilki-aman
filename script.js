@@ -769,12 +769,76 @@ function initCircles() {
 }
 
 // ========================================
+// ЛЕНДИНГ — ДАННЫЕ КРУГОВ ИЗ ТАБЛИЦЫ
+// ADMIN M2=общий капитал, M3=всего заработано, M4=средняя доходность %,
+// ADMIN K2=худший день %, K3=лучший день %. PUBLIC A3=активных слотов.
+// Строки 0-based: строка 2 = index 1, строка 3 = index 2, строка 4 = index 3.
+// Столбцы: A=0, K=10, M=12.
+// ========================================
+
+function getLandingCell(rows, rowIndex, colIndex) {
+  if (!rows || rowIndex >= rows.length) return null;
+  const row = rows[rowIndex];
+  return row && colIndex < row.length ? row[colIndex] : null;
+}
+
+function formatPercent(value) {
+  if (value == null || value === '') return '—';
+  const num = parseFloat(value);
+  if (Number.isNaN(num)) return '—';
+  return num.toFixed(2) + '%';
+}
+
+async function loadLandingCircleData() {
+  try {
+    const [adminData, publicData] = await Promise.all([
+      fetchSheetData(SHEETS.admin),
+      fetchSheetData(SHEETS.public)
+    ]);
+    const adminRows = parseSheetRows(adminData);
+    const publicRows = parseSheetRows(publicData);
+
+    const totalCapitalRaw = getLandingCell(adminRows, 1, 12);   // ADMIN M2
+    const totalEarnedRaw = getLandingCell(adminRows, 2, 12);   // ADMIN M3
+    const avgPercentRaw = getLandingCell(adminRows, 3, 12);    // ADMIN M4
+    const worstDayRaw = getLandingCell(adminRows, 1, 10);     // ADMIN K2
+    const bestDayRaw = getLandingCell(adminRows, 2, 10);      // ADMIN K3
+    const activeSlotsRaw = getLandingCell(publicRows, 2, 0);  // PUBLIC A3
+
+    const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(totalCapitalRaw) : null;
+    const totalEarned = totalEarnedRaw != null && totalEarnedRaw !== '' ? parseFloat(totalEarnedRaw) : null;
+    const avgPercent = formatPercent(avgPercentRaw);
+    const worstDay = formatPercent(worstDayRaw);
+    const bestDay = formatPercent(bestDayRaw);
+    const activeSlots = activeSlotsRaw != null && activeSlotsRaw !== '' ? String(activeSlotsRaw).trim() : '—';
+
+    setLandingValue('total-capital', totalCapital != null ? formatMoney(totalCapital) : null);
+    setLandingValue('total-earned', totalEarned != null ? formatMoney(totalEarned, true) : null);
+    setLandingValue('avg-percent', avgPercent !== '—' ? avgPercent : null);
+    setLandingValue('active-slots', activeSlots);
+    setLandingValue('best-day', bestDay !== '—' ? bestDay : null);
+    setLandingValue('worst-day', worstDay !== '—' ? worstDay : null);
+  } catch (e) {
+    console.warn('Данные для кругов лендинга не загружены:', e.message);
+  }
+}
+
+function setLandingValue(key, value) {
+  const el = document.querySelector(`[data-landing="${key}"]`);
+  if (!el) return;
+  if (value != null && value !== '') {
+    el.textContent = value;
+  }
+}
+
+// ========================================
 // ИНИЦИАЛИЗАЦИЯ
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
   createDots();
   initCircles();
+  loadLandingCircleData();
   checkSession();
   const savedUser = localStorage.getItem('bk_vilki_user');
   if (savedUser && dashboard.classList.contains('active')) {

@@ -13,18 +13,25 @@
 
 ## 2. Подключить локальный проект к репозиторию
 
-В терминале в папке проекта выполните (подставьте вместо `ВАШ_ЛОГИН` и `bk-vilki-aman` свои значения):
+В терминале в папке проекта выполните:
 
 ```bash
 cd /Users/igorberzan/Desktop/bk-vilki-aman
 
-git remote add origin https://github.com/ВАШ_ЛОГИН/bk-vilki-aman.git
+git remote add origin https://github.com/igorberzan/bk-vilki-aman.git
 git branch -M main
 git push -u origin main
 ```
 
-При первом `git push` GitHub может запросить вход: логин и пароль (или **Personal Access Token** вместо пароля, если включена 2FA).  
-Рекомендуется использовать [Personal Access Token](https://github.com/settings/tokens): создать токен с правом `repo`, ввести его вместо пароля при запросе.
+При первом `git push` GitHub запросит **Personal Access Token** (пароль аккаунта не подходит).  
+Создайте токен: [github.com/settings/tokens](https://github.com/settings/tokens) → Generate new token (classic) → поставьте галочку **repo** → скопируйте токен.
+
+**Если в терминале не получается вставить токен в поле пароля** (защищённый ввод): используйте один раз команду с токеном в адресе (подставьте свой токен вместо `ВАШ_ТОКЕН`):
+```bash
+git remote set-url origin https://igorberzan:ВАШ_ТОКЕН@github.com/igorberzan/bk-vilki-aman.git
+git push -u origin main
+```
+Токен вставляется в обычную строку терминала (Cmd+V сработает), затем Enter. После успешного пуша лучше убрать токен из URL: `git remote set-url origin https://github.com/igorberzan/bk-vilki-aman.git` и настроить [credential helper](https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git) или в следующий раз снова подставить токен в URL.
 
 ## 3. Дальнейшая работа
 

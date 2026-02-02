@@ -27,65 +27,62 @@
 
       <!-- 3 интерактивных круга с овальной капсулой -->
       <div class="circles-container animate-item" id="circles-container" style="--delay: 0.2s">
-        <!-- Круг 1: капсула вправо -->
+        <!-- Круг 1: Общий капитал (ADMIN M2), плашка: описание + Активных слотов (PUBLIC A3) -->
         <div class="circle-wrapper" data-direction="right" data-circle="1">
           <div class="capsule-inner">
             <div class="capsule-background"></div>
             <div class="capsule-content">
-            <h4>Общий капитал</h4>
-            <div class="divider"></div>
-            <p>Начальный депозит: 500,000₽</p>
-            <p>Реинвестировано: 0₽</p>
-            <p>Активные слоты: 1</p>
-          </div>
+              <h4>Общий капитал</h4>
+              <div class="divider"></div>
+              <p class="capsule-desc">Общий капитал — это совокупная сумма в работе всех слотов.</p>
+              <p>Активных слотов: <span data-landing="active-slots">1</span></p>
+            </div>
           </div>
           <div class="circle-main">
             <div class="circle-border"></div>
             <div class="circle-content">
               <span class="circle-label">Общий капитал</span>
-              <span class="circle-value">500.000₽</span>
+              <span class="circle-value" data-landing="total-capital">500.000₽</span>
             </div>
           </div>
         </div>
 
-        <!-- Круг 2: капсула вправо -->
+        <!-- Круг 2: Всего заработано (ADMIN M3), плашка: описание -->
         <div class="circle-wrapper" data-direction="right" data-circle="2">
           <div class="capsule-inner">
             <div class="capsule-background"></div>
             <div class="capsule-content">
-            <h4>Всего заработано</h4>
-            <div class="divider"></div>
-            <p>Торговая прибыль: +15,300₽</p>
-            <p>Комиссии: -0₽</p>
-            <p>Дней в работе: 5</p>
-          </div>
+              <h4>Всего заработано</h4>
+              <div class="divider"></div>
+              <p class="capsule-desc">Всего заработано — это совокупная сумма торговой прибыли со всех слотов.</p>
+            </div>
           </div>
           <div class="circle-main">
             <div class="circle-border"></div>
             <div class="circle-content">
               <span class="circle-label">Всего заработано</span>
-              <span class="circle-value accent">+15,300₽</span>
+              <span class="circle-value accent" data-landing="total-earned">+15.300₽</span>
             </div>
           </div>
         </div>
 
-        <!-- Круг 3: капсула влево -->
+        <!-- Круг 3: Средняя доходность (ADMIN M4), плашка: описание + Лучший/Худший день (ADMIN K3, K2) -->
         <div class="circle-wrapper" data-direction="left" data-circle="3">
           <div class="capsule-inner">
             <div class="capsule-background"></div>
             <div class="capsule-content">
-            <h4>Средняя доходность</h4>
-            <div class="divider"></div>
-            <p>Средний %/день: 1.13%</p>
-            <p>Лучший день: 1.40%</p>
-            <p>Худший день: 1.00%</p>
-          </div>
+              <h4>Средняя доходность</h4>
+              <div class="divider"></div>
+              <p class="capsule-desc">Средняя доходность в сутки в процентном соотношении — это совокупный процент торговой прибыли со всех слотов.</p>
+              <p>Лучший день: <span data-landing="best-day">1.40%</span></p>
+              <p>Худший день: <span data-landing="worst-day">1.00%</span></p>
+            </div>
           </div>
           <div class="circle-main">
             <div class="circle-border"></div>
             <div class="circle-content">
               <span class="circle-label">Средняя доходность</span>
-              <span class="circle-value">1.13%</span>
+              <span class="circle-value" data-landing="avg-percent">1.13%</span>
             </div>
           </div>
         </div>
