@@ -859,10 +859,19 @@ async function loadLandingCircleData() {
     const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // M4 — строка 4 (средняя доходность)
     const worstDayRaw = getLandingCell(adminRows, 0, 10);     // K2 — строка 2 (МИН % общий = худший день)
     const bestDayRaw = getLandingCell(adminRows, 1, 10);       // K3 — строка 3 (МАКС % общий = лучший день)
-    // PUBLIC A3 = число активных слотов (строка 3 листа → index 2; колонка A → 0)
-    let activeSlotsRaw = getLandingCell(publicRows, 2, 0);
-    if ((activeSlotsRaw == null || activeSlotsRaw === '') && publicRows && publicRows.length > 1) {
-      activeSlotsRaw = getLandingCell(publicRows, 1, 0); // запас: если строка 1 = заголовок
+    // PUBLIC A3 = число активных слотов (колонка A, строка 3; пробуем index 2, 1, 0 под разные структуры листа)
+    let activeSlotsRaw = null;
+    if (publicRows && publicRows.length > 0) {
+      for (const rowIndex of [2, 1, 0]) {
+        const v = getLandingCell(publicRows, rowIndex, 0);
+        if (v != null && String(v).trim() !== '') {
+          const n = parseInt(String(v).replace(/\s/g, ''), 10);
+          if (!Number.isNaN(n) && n >= 0) {
+            activeSlotsRaw = v;
+            break;
+          }
+        }
+      }
     }
 
     const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(String(totalCapitalRaw).replace(',', '.')) : null;
