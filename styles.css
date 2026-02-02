@@ -230,20 +230,23 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 16px;
+  color: var(--accent);
   background: linear-gradient(
-    90deg,
+    110deg,
     var(--accent) 0%,
-    var(--text-primary) 25%,
-    rgba(255, 255, 255, 0.95) 50%,
-    var(--text-primary) 75%,
+    var(--accent) 15%,
+    var(--text-primary) 35%,
+    #fff 50%,
+    var(--text-primary) 65%,
+    var(--accent) 85%,
     var(--accent) 100%
   );
-  background-size: 200% 100%;
+  background-size: 300% 100%;
   background-position: 0% 50%;
-  animation: heroTitleShimmer 4s ease-in-out infinite alternate;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: heroTitleShimmer 3s ease-in-out infinite alternate;
 }
 
 @keyframes heroTitleShimmer {
@@ -262,13 +265,21 @@ body {
   margin: 0 auto;
 }
 
+.hero-tagline {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto 40px;
+}
+
 /* === Круги с капсулами === */
 .circles-container {
   display: flex;
   gap: 40px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 60px;
+  margin-bottom: 24px;
   overflow: visible;
 }
 
@@ -1072,7 +1083,8 @@ body {
     font-size: 2rem;
   }
 
-  .hero-bio {
+  .hero-bio,
+  .hero-tagline {
     font-size: 1rem;
   }
 
