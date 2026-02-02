@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>БК Вилки с Аманом — Платформа прозрачной торговли</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ========== ЛЕНДИНГ (публичная часть) ========== -->
+  <main id="landing" class="page active">
+    <!-- Динамический фон: белые точки в разнобой поднимаются снизу вверх -->
+    <div class="hero-bg-dots" aria-hidden="true" id="hero-dots"></div>
+
+    <div class="container hero-container">
+      <!-- Заголовок и био -->
+      <div class="hero-heading">
+        <h1 class="hero-title animate-item">БК Вилки с Аманом</h1>
+        <p class="hero-bio animate-item" style="--delay: 0.1s">
+          Платформа торговой статистики с понятными метриками.<br>
+          Следите за результатами в реальном времени.
+        </p>
+      </div>
+
+      <!-- 3 интерактивных круга с овальной капсулой -->
+      <div class="circles-container animate-item" id="circles-container" style="--delay: 0.2s">
+        <!-- Круг 1: капсула вправо -->
+        <div class="circle-wrapper" data-direction="right" data-circle="1">
+          <div class="capsule-inner">
+            <div class="capsule-background"></div>
+            <div class="capsule-content">
+            <h4>Общий капитал</h4>
+            <div class="divider"></div>
+            <p>Начальный депозит: 500,000₽</p>
+            <p>Реинвестировано: 0₽</p>
+            <p>Активные слоты: 1</p>
+          </div>
+          </div>
+          <div class="circle-main">
+            <div class="circle-border"></div>
+            <div class="circle-content">
+              <span class="circle-label">Общий капитал</span>
+              <span class="circle-value">500.000₽</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Круг 2: капсула вправо -->
+        <div class="circle-wrapper" data-direction="right" data-circle="2">
+          <div class="capsule-inner">
+            <div class="capsule-background"></div>
+            <div class="capsule-content">
+            <h4>Всего заработано</h4>
+            <div class="divider"></div>
+            <p>Торговая прибыль: +15,300₽</p>
+            <p>Комиссии: -0₽</p>
+            <p>Дней в работе: 5</p>
+          </div>
+          </div>
+          <div class="circle-main">
+            <div class="circle-border"></div>
+            <div class="circle-content">
+              <span class="circle-label">Всего заработано</span>
+              <span class="circle-value accent">+15,300₽</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Круг 3: капсула влево -->
+        <div class="circle-wrapper" data-direction="left" data-circle="3">
+          <div class="capsule-inner">
+            <div class="capsule-background"></div>
+            <div class="capsule-content">
+            <h4>Средняя доходность</h4>
+            <div class="divider"></div>
+            <p>Средний %/день: 1.13%</p>
+            <p>Лучший день: 1.40%</p>
+            <p>Худший день: 1.00%</p>
+          </div>
+          </div>
+          <div class="circle-main">
+            <div class="circle-border"></div>
+            <div class="circle-content">
+              <span class="circle-label">Средняя доходность</span>
+              <span class="circle-value">1.13%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA кнопка -->
+      <div class="hero-cta-wrap">
+        <button id="cta-btn" class="btn btn-cta">
+          Смотреть статистику
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========== МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ ========== -->
+  <div id="modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div id="modal" class="modal">
+      <!-- Динамический градиент фона модалки -->
+      <div class="modal-gradient"></div>
+
+      <button id="modal-close" class="modal-close" aria-label="Закрыть">✕</button>
+
+      <h2 class="modal-title">Регистрация</h2>
+      <p class="modal-subtitle">Получите доступ к полной статистике</p>
+
+      <form id="register-form" class="register-form">
+        <div class="form-group">
+          <label for="name">Имя</label>
+          <input type="text" id="name" name="name" required placeholder="Введите имя">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required placeholder="example@mail.ru">
+        </div>
+        <div class="form-group">
+          <label for="phone">Телефон</label>
+          <input type="tel" id="phone" name="phone" required placeholder="+7 (999) 123-45-67">
+        </div>
+        <div class="form-group">
+          <label for="telegram">Telegram логин</label>
+          <input type="text" id="telegram" name="telegram" required placeholder="@username">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Получить доступ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== ДАШБОРД (после регистрации) ========== -->
+  <main id="dashboard" class="page">
+    <div class="container">
+      <!-- Шапка с приветствием и выходом -->
+      <header class="dashboard-header">
+        <h2 class="welcome-text">Добро пожаловать, <span id="user-name">Пользователь</span>!</h2>
+        <button id="logout-btn" class="btn btn-ghost">Выйти</button>
+      </header>
+
+      <!-- 4 карточки статистики -->
+      <section class="stats-section">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">Общий капитал</span>
+            <span class="stat-value" data-stat="total-capital">500.000 ₽</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Всего заработано</span>
+            <span class="stat-value accent" data-stat="total-earned">+15,300 ₽</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Средняя доходность</span>
+            <span class="stat-value" data-stat="avg-percent">1.13%</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Активных слотов</span>
+            <span class="stat-value" data-stat="active-slots">1/10</span>
+          </article>
+        </div>
+      </section>
+
+      <!-- Секция торговых слотов (заполняется из Google Sheets) -->
+      <section class="slots-section">
+        <h3 class="slots-title">Торговые Слоты</h3>
+        <div class="slots-grid" data-slots-container>
+          <!-- Слоты 1–10 подставляются из Google Sheets -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
