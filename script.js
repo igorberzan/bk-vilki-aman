@@ -779,7 +779,9 @@ function initCircles() {
   });
 
   container.addEventListener('mouseleave', () => {
-    delete container.dataset.hover;
+    if (!window.matchMedia('(max-width: 768px)').matches) {
+      delete container.dataset.hover;
+    }
   });
 
   document.addEventListener('click', (e) => {

@@ -230,39 +230,31 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 16px;
-  position: relative;
-  display: inline-block;
   color: var(--accent);
-  overflow: hidden;
-}
-
-/* Движущаяся белая полоса перелива поверх заголовка */
-.hero-title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 50%;
   background: linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.25) 30%,
-    rgba(255, 255, 255, 0.7) 50%,
-    rgba(255, 255, 255, 0.25) 70%,
-    transparent 100%
+    var(--accent) 0%,
+    var(--accent) 30%,
+    var(--text-primary) 45%,
+    #fff 50%,
+    var(--text-primary) 55%,
+    var(--accent) 70%,
+    var(--accent) 100%
   );
-  mix-blend-mode: lighten;
-  animation: heroTitleShine 5s ease-in-out infinite alternate;
-  pointer-events: none;
+  background-size: 400% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: heroTitleShimmer 5s ease-in-out infinite alternate;
 }
 
-@keyframes heroTitleShine {
+@keyframes heroTitleShimmer {
   0% {
-    transform: translateX(0);
+    background-position: 0% 50%;
   }
   100% {
-    transform: translateX(100%);
+    background-position: 100% 50%;
   }
 }
 
@@ -1097,7 +1089,14 @@ body {
   }
 
   .circles-container {
-    gap: 30px;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .circle-wrapper {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .circle-main {
@@ -1109,10 +1108,70 @@ body {
     font-size: 1.2rem;
   }
 
-  /* Скрываем капсулы на мобильных */
-  .capsule-background,
+  /* На мобильных не двигаем и не скрываем другие круги при выборе */
+  .circles-container[data-hover="1"] .circle-wrapper[data-circle="2"],
+  .circles-container[data-hover="1"] .circle-wrapper[data-circle="3"],
+  .circles-container[data-hover="2"] .circle-wrapper[data-circle="3"],
+  .circles-container[data-hover="3"] .circle-wrapper[data-circle="2"],
+  .circles-container[data-hover="3"] .circle-wrapper[data-circle="1"] {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Плашка на мобильных всегда вправо: базовая позиция (как right) */
+  .capsule-inner {
+    height: 137px;
+  }
+
+  [data-direction="right"] .capsule-inner {
+    left: 69px;
+    width: min(260px, calc(100vw - 137px - 40px));
+  }
+
+  /* Круг 3 на мобильных — плашка тоже вправо */
+  [data-direction="left"] .capsule-inner {
+    right: auto;
+    left: 69px;
+    width: min(260px, calc(100vw - 137px - 40px));
+    transform-origin: 0 50%;
+    transform: translateY(-50%) scaleX(0);
+  }
+
+  .circles-container[data-hover="3"] .circle-wrapper[data-circle="3"] .capsule-inner {
+    transform: translateY(-50%) scaleX(1);
+  }
+
+  .capsule-background {
+    height: 137px;
+    border-radius: 68px;
+  }
+
+  .capsule-background::after {
+    border-radius: 66px;
+  }
+
+  [data-direction="right"] .capsule-background,
+  [data-direction="left"] .capsule-background {
+    left: 0;
+    right: auto;
+    width: min(260px, calc(100vw - 137px - 40px));
+    border-radius: 68px;
+  }
+
+  [data-direction="left"] .capsule-background::after {
+    border-radius: 66px;
+  }
+
   .capsule-content {
-    display: none;
+    width: 160px;
+    padding: 14px 12px;
+    left: 50%;
+  }
+
+  [data-direction="right"] .capsule-content,
+  [data-direction="left"] .capsule-content {
+    left: 50%;
   }
 
   .modal {
@@ -1144,11 +1203,6 @@ body {
 @media (max-width: 480px) {
   .container {
     padding: 0 16px;
-  }
-
-  .circles-container {
-    flex-direction: column;
-    align-items: center;
   }
 
   .stats-grid {
