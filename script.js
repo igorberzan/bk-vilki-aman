@@ -791,13 +791,15 @@ function initCircles() {
   });
 
   // Мобильная подсказка при загрузке/обновлении: через 3 с первый круг раскрывается на 2 с
-  // Проверка matchMedia — в момент показа (через 3 с), чтобы сработало после обновления на мобильном
   setTimeout(function mobileHint() {
     if (!window.matchMedia('(max-width: 768px)').matches) return;
-    if (!document.getElementById('landing') || !document.getElementById('landing').classList.contains('active')) return;
-    container.dataset.hover = '1';
+    const landingEl = document.getElementById('landing');
+    const containerEl = document.getElementById('circles-container');
+    if (!landingEl || !landingEl.classList.contains('active') || !containerEl) return;
+    containerEl.offsetHeight; // форсируем reflow для корректного применения стилей
+    containerEl.dataset.hover = '1';
     setTimeout(function() {
-      delete container.dataset.hover;
+      delete containerEl.dataset.hover;
     }, 2000);
   }, 3000);
 }

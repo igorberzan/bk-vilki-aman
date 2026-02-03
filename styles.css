@@ -224,6 +224,12 @@ body {
   margin-bottom: 60px;
 }
 
+/* Перелив градиента по заголовку (белый оттенок от начала до конца и обратно) */
+@keyframes heroTitleShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
 .hero-title {
   font-family: 'Manrope', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
@@ -234,32 +240,28 @@ body {
   background: linear-gradient(
     90deg,
     var(--accent) 0%,
-    var(--accent) 15%,
-    var(--accent) 28%,
-    rgba(255, 255, 255, 0.5) 38%,
-    rgba(255, 255, 255, 0.9) 48%,
+    var(--accent) 20%,
+    rgba(255, 255, 255, 0.4) 35%,
+    rgba(255, 255, 255, 0.95) 45%,
     #fff 50%,
-    rgba(255, 255, 255, 0.9) 52%,
-    rgba(255, 255, 255, 0.5) 62%,
-    var(--accent) 72%,
-    var(--accent) 85%,
+    rgba(255, 255, 255, 0.95) 55%,
+    rgba(255, 255, 255, 0.4) 65%,
+    var(--accent) 80%,
     var(--accent) 100%
   );
-  background-size: 500% 100%;
+  background-size: 400% 100%;
   background-position: 0% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: heroTitleShimmer 7s ease-in-out infinite alternate;
+  transform: translateZ(0);
+  will-change: background-position;
+  backface-visibility: hidden;
+  animation: heroTitleShimmer 6s linear infinite alternate;
 }
 
-@keyframes heroTitleShimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
+.hero-title.is-shimmer {
+  animation: heroTitleShimmer 6s linear infinite alternate;
 }
 
 .hero-bio {
@@ -1241,16 +1243,16 @@ body {
     font-weight: 600;
   }
 
-  /* Плашки 1, 2 и 3: текст сдвинут вправо, не залазит под основной круг */
+  /* Плашки 1, 2 и 3: текст сдвинут вправо, не заходит под круг, читабельно и эстетично */
   .circle-wrapper[data-circle="1"] .capsule-content,
   .circle-wrapper[data-circle="2"] .capsule-content {
-    padding-left: 44px;
+    padding-left: 92px;
     padding-right: 14px;
     text-align: left;
   }
 
   .circle-wrapper[data-circle="3"] .capsule-content {
-    padding-left: 40px;
+    padding-left: 88px;
     padding-right: 14px;
     text-align: left;
   }
