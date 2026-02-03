@@ -789,6 +789,17 @@ function initCircles() {
       delete container.dataset.hover;
     }
   });
+
+  // Мобильная подсказка: через 3 с первый круг раскрывается на 2 с, затем закрывается
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const openHint = setTimeout(() => {
+      container.dataset.hover = '1';
+      setTimeout(() => {
+        delete container.dataset.hover;
+      }, 2000);
+    }, 3000);
+    window._circleHintTimeout = openHint;
+  }
 }
 
 // ========================================

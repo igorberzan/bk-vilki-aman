@@ -1114,8 +1114,14 @@ body {
   }
 
   .circle-content {
-    padding: 14px 10px;
+    padding: 14px 10px 14px 14px;
     gap: 6px;
+  }
+
+  /* Текст в 1-м и 2-м круге чуть вправо, чтобы не залезал на обводку */
+  .circle-wrapper[data-circle="1"] .circle-content,
+  .circle-wrapper[data-circle="2"] .circle-content {
+    padding-left: 18px;
   }
 
   .circle-label {
@@ -1167,13 +1173,13 @@ body {
     transition: transform 0.4s ease;
   }
 
-  /* По умолчанию — «подглядывание»; отступ от круга, чтобы плашка не перекрывала круг */
+  /* На мобильных без «подглядывания» — плашка скрыта до тапа */
   [data-direction="right"] .capsule-inner {
     left: 74px;
     width: min(280px, calc(100vw - 168px));
     transform-origin: 0 50%;
     transform: translateY(-50%) scaleX(0);
-    animation: capsulePeek 3s ease-in-out infinite;
+    animation: none;
   }
 
   [data-direction="left"] .capsule-inner {
@@ -1182,15 +1188,7 @@ body {
     width: min(280px, calc(100vw - 168px));
     transform-origin: 0 50%;
     transform: translateY(-50%) scaleX(0);
-    animation: capsulePeek 3s ease-in-out infinite;
-  }
-
-  .circle-wrapper[data-circle="2"] .capsule-inner {
-    animation-delay: 0.4s;
-  }
-
-  .circle-wrapper[data-circle="3"] .capsule-inner {
-    animation-delay: 0.8s;
+    animation: none;
   }
 
   /* При выборе: плашка открывается полностью, анимация peek отключается */
