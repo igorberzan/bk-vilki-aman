@@ -1118,10 +1118,11 @@ body {
     gap: 6px;
   }
 
-  /* Текст в 1-м и 2-м круге чуть вправо, чтобы не залезал на обводку */
+  /* Текст в 1-м и 2-м круге сдвинут вправо, чтобы не залезал на основной круг */
   .circle-wrapper[data-circle="1"] .circle-content,
   .circle-wrapper[data-circle="2"] .circle-content {
-    padding-left: 18px;
+    padding-left: 24px;
+    padding-right: 6px;
   }
 
   .circle-label {
@@ -1173,30 +1174,27 @@ body {
     transition: transform 0.4s ease;
   }
 
-  /* На мобильных без «подглядывания» — плашка скрыта до тапа */
-  [data-direction="right"] .capsule-inner {
-    left: 74px;
-    width: min(280px, calc(100vw - 168px));
-    transform-origin: 0 50%;
-    transform: translateY(-50%) scaleX(0);
-    animation: none;
-  }
-
+  /* На мобильных плашка полностью скрыта до тапа — никакого подглядывания */
+  [data-direction="right"] .capsule-inner,
   [data-direction="left"] .capsule-inner {
-    right: auto;
     left: 74px;
     width: min(280px, calc(100vw - 168px));
     transform-origin: 0 50%;
     transform: translateY(-50%) scaleX(0);
     animation: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.2s ease, visibility 0.2s;
   }
 
-  /* При выборе: плашка открывается полностью, анимация peek отключается */
+  /* При выборе: плашка открывается и становится видимой */
   .circles-container[data-hover="1"] .circle-wrapper[data-circle="1"] .capsule-inner,
   .circles-container[data-hover="2"] .circle-wrapper[data-circle="2"] .capsule-inner,
   .circles-container[data-hover="3"] .circle-wrapper[data-circle="3"] .capsule-inner {
     transform: translateY(-50%) scaleX(1);
     animation: none;
+    visibility: visible;
+    opacity: 1;
   }
 
   .capsule-background {
