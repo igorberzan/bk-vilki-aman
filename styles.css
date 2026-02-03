@@ -234,19 +234,23 @@ body {
   background: linear-gradient(
     90deg,
     var(--accent) 0%,
-    var(--accent) 20%,
-    rgba(255, 255, 255, 0.6) 35%,
+    var(--accent) 15%,
+    var(--accent) 28%,
+    rgba(255, 255, 255, 0.5) 38%,
+    rgba(255, 255, 255, 0.9) 48%,
     #fff 50%,
-    rgba(255, 255, 255, 0.6) 65%,
-    var(--accent) 80%,
+    rgba(255, 255, 255, 0.9) 52%,
+    rgba(255, 255, 255, 0.5) 62%,
+    var(--accent) 72%,
+    var(--accent) 85%,
     var(--accent) 100%
   );
-  background-size: 400% 100%;
+  background-size: 500% 100%;
   background-position: 0% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: heroTitleShimmer 5s ease-in-out infinite alternate;
+  animation: heroTitleShimmer 7s ease-in-out infinite alternate;
 }
 
 @keyframes heroTitleShimmer {
@@ -1237,18 +1241,17 @@ body {
     font-weight: 600;
   }
 
-  /* Плашки 1 и 2: текст выровнен по плашке, сдвиг вправо от круга */
+  /* Плашки 1, 2 и 3: текст сдвинут вправо, не залазит под основной круг */
   .circle-wrapper[data-circle="1"] .capsule-content,
   .circle-wrapper[data-circle="2"] .capsule-content {
-    padding-left: 32px;
-    padding-right: 16px;
+    padding-left: 44px;
+    padding-right: 14px;
     text-align: left;
   }
 
-  /* Плашка 3: текст сдвинут вправо, не заходит за рамки круга */
   .circle-wrapper[data-circle="3"] .capsule-content {
-    padding-left: 28px;
-    padding-right: 16px;
+    padding-left: 40px;
+    padding-right: 14px;
     text-align: left;
   }
 
