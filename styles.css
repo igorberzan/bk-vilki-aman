@@ -224,12 +224,7 @@ body {
   margin-bottom: 60px;
 }
 
-/* Перелив градиента по заголовку (белый оттенок от начала до конца и обратно) */
-@keyframes heroTitleShimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
+/* Перелив градиента по заголовку — позиция задаётся JS для надёжной перерисовки */
 .hero-title {
   font-family: 'Manrope', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
@@ -240,28 +235,23 @@ body {
   background: linear-gradient(
     90deg,
     var(--accent) 0%,
-    var(--accent) 20%,
-    rgba(255, 255, 255, 0.4) 35%,
+    var(--accent) 18%,
+    rgba(255, 255, 255, 0.5) 35%,
     rgba(255, 255, 255, 0.95) 45%,
     #fff 50%,
     rgba(255, 255, 255, 0.95) 55%,
-    rgba(255, 255, 255, 0.4) 65%,
-    var(--accent) 80%,
+    rgba(255, 255, 255, 0.5) 65%,
+    var(--accent) 82%,
     var(--accent) 100%
   );
   background-size: 400% 100%;
-  background-position: 0% 50%;
+  background-position: var(--title-shimmer, 0%) 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transform: translateZ(0);
   will-change: background-position;
   backface-visibility: hidden;
-  animation: heroTitleShimmer 6s linear infinite alternate;
-}
-
-.hero-title.is-shimmer {
-  animation: heroTitleShimmer 6s linear infinite alternate;
 }
 
 .hero-bio {

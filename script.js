@@ -26,6 +26,32 @@ const userNameSpan = document.getElementById('user-name');
 const heroDotsContainer = document.getElementById('hero-dots');
 
 // ========================================
+// ПЕРЕЛИВ ЗАГОЛОВКА «БК Вилки с Аманом» (белый оттенок движется по тексту)
+// ========================================
+
+function startHeroTitleShimmer() {
+  const title = document.querySelector('.hero-title');
+  if (!title) return;
+
+  const durationMs = 6000; // один проход (начало → конец или конец → начало)
+  const cycleMs = durationMs * 2; // полный цикл туда-обратно
+  let start = null;
+
+  function tick(now) {
+    if (!start) start = now;
+    const elapsed = (now - start) % cycleMs;
+    const t = elapsed < durationMs
+      ? elapsed / durationMs
+      : 1 - (elapsed - durationMs) / durationMs;
+    const position = t * 100;
+    title.style.setProperty('--title-shimmer', position + '%');
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ========================================
 // ДИНАМИЧЕСКИЙ ФОН (Точки)
 // ========================================
 
@@ -944,6 +970,7 @@ function setLandingValue(key, value) {
 
 document.addEventListener('DOMContentLoaded', () => {
   createDots();
+  startHeroTitleShimmer();
   initCircles();
   applyLandingCache(getLandingCache());
   loadLandingCircleData();
