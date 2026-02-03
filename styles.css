@@ -1114,15 +1114,8 @@ body {
   }
 
   .circle-content {
-    padding: 14px 10px 14px 14px;
+    padding: 14px 10px;
     gap: 6px;
-  }
-
-  /* Текст в 1-м и 2-м круге сдвинут вправо, чтобы не залезал на основной круг */
-  .circle-wrapper[data-circle="1"] .circle-content,
-  .circle-wrapper[data-circle="2"] .circle-content {
-    padding-left: 24px;
-    padding-right: 6px;
   }
 
   .circle-label {
@@ -1218,16 +1211,23 @@ body {
     border-radius: 66px;
   }
 
-  /* Текст плашки: под размер плашки, читаемо, без перекрытия круга */
+  /* Текст плашки: под размер плашки, читаемо */
   .capsule-content {
     width: 155px;
     max-width: calc(100% - 52px);
-    padding: 14px 12px 14px 26px;
+    padding: 14px 12px;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     box-sizing: border-box;
     line-height: 1.4;
+  }
+
+  /* В плашках 1-го и 2-го круга текст сдвинут вправо, чтобы не залезал на основной круг */
+  .circle-wrapper[data-circle="1"] .capsule-content,
+  .circle-wrapper[data-circle="2"] .capsule-content {
+    padding-left: 32px;
+    padding-right: 16px;
   }
 
   [data-direction="right"] .capsule-content,
