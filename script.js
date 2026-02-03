@@ -44,7 +44,7 @@ function startHeroTitleShimmer() {
       ? elapsed / durationMs
       : 1 - (elapsed - durationMs) / durationMs;
     const position = t * 100;
-    title.style.setProperty('--title-shimmer', position + '%');
+    title.style.backgroundPosition = position + '% 50%';
     requestAnimationFrame(tick);
   }
 
