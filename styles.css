@@ -1211,7 +1211,7 @@ body {
     border-radius: 66px;
   }
 
-  /* Текст плашки: под размер плашки, читаемо */
+  /* Текст плашки: под размер плашки, не вылезает за рамки */
   .capsule-content {
     width: 155px;
     max-width: calc(100% - 52px);
@@ -1221,13 +1221,35 @@ body {
     text-align: center;
     box-sizing: border-box;
     line-height: 1.4;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
-  /* В плашках 1-го и 2-го круга текст сдвинут вправо, чтобы не залезал на основной круг */
+  /* Мобильно: убираем зелёные заголовки h4 и разделитель в плашках 1 и 2 */
+  .capsule-title-desktop,
+  .capsule-divider-desktop {
+    display: none;
+  }
+
+  /* Выделение зелёным в тексте плашки (Общий капитал / Всего заработано) */
+  .capsule-highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Плашки 1 и 2: текст выровнен по плашке, сдвиг вправо от круга */
   .circle-wrapper[data-circle="1"] .capsule-content,
   .circle-wrapper[data-circle="2"] .capsule-content {
     padding-left: 32px;
     padding-right: 16px;
+    text-align: left;
+  }
+
+  /* Плашка 3: текст сдвинут вправо, не заходит за рамки круга */
+  .circle-wrapper[data-circle="3"] .capsule-content {
+    padding-left: 28px;
+    padding-right: 16px;
+    text-align: left;
   }
 
   [data-direction="right"] .capsule-content,
