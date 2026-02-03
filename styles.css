@@ -1207,14 +1207,13 @@ body {
     border-radius: 66px;
   }
 
-  /* Текст плашки: на всю ширину плашки, как на ПК — абзацем, не столбиком, не вылезает за границы */
+  /* Текст плашки: только справа от круга, читабельно, не под кругом */
   .capsule-content {
-    width: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    padding: 14px 16px 14px 92px;
-    left: 0;
+    left: 100px;
     right: 0;
+    width: calc(100% - 100px);
+    max-height: 100%;
+    padding: 14px 16px;
     transform: translateY(-50%);
     top: 50%;
     text-align: left;
@@ -1226,8 +1225,10 @@ body {
     white-space: normal;
   }
 
+  /* Третий круг: та же зона справа от круга */
   .circle-wrapper[data-circle="3"] .capsule-content {
-    padding-left: 88px;
+    left: 100px;
+    width: calc(100% - 100px);
   }
 
   /* Мобильно: убираем зелёные заголовки h4 и разделитель в плашках 1 и 2 */
@@ -1244,8 +1245,9 @@ body {
 
   [data-direction="right"] .capsule-content,
   [data-direction="left"] .capsule-content {
-    left: 0;
+    left: 100px;
     right: 0;
+    width: calc(100% - 100px);
   }
 
   .capsule-content h4 {
