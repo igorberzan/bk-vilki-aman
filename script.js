@@ -870,12 +870,15 @@ function getAggregateStatsFromSheet(adminRows, publicRows, fallbackActiveSlotsCo
   let activeSlotsCount = fallbackActiveSlotsCount;
   if (publicRows && publicRows.length > 0) {
     const colA = 0;
-    // Сначала явно читаем A3 (строка 3 листа PUBLIC) — там формула «всего слотов»
-    if (publicRows.length >= 3) {
-      const a3 = getLandingCell(publicRows, 2, colA);
-      if (a3 != null && String(a3).trim() !== '') {
-        const n = parseInt(String(a3).replace(/\s/g, ''), 10);
-        if (!Number.isNaN(n) && n >= 0) activeSlotsCount = n;
+    // A3 в таблице = «всего слотов»; API может возвращать строки со смещением (индекс 2 = A5). Берём на 2 строки выше: сначала индекс 0, потом 1.
+    for (const rowIndex of [0, 1, 2]) {
+      const v = getLandingCell(publicRows, rowIndex, colA);
+      if (v != null && String(v).trim() !== '') {
+        const n = parseInt(String(v).replace(/\s/g, ''), 10);
+        if (!Number.isNaN(n) && n >= 0) {
+          activeSlotsCount = n;
+          break;
+        }
       }
     }
     if (activeSlotsCount == null) {
@@ -973,15 +976,18 @@ async function loadLandingCircleData() {
     const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // M4 — строка 4 (средняя доходность)
     const worstDayRaw = getLandingCell(adminRows, 0, 10);     // K2 — строка 2 (МИН % общий = худший день)
     const bestDayRaw = getLandingCell(adminRows, 1, 10);       // K3 — строка 3 (МАКС % общий = лучший день)
-    // PUBLIC A3 = число активных слотов (в таблице: A2 = «Всего слотов:», A3 = формула, результат показываем везде)
+    // PUBLIC A3 = число активных слотов. API может отдавать строки со смещением (индекс 2 = A5). Берём на 2 строки выше: сначала индекс 0, потом 1, потом 2.
     let activeSlotsRaw = null;
     if (publicRows && publicRows.length > 0) {
       const colA = 0;
-      if (publicRows.length >= 3) {
-        const a3 = getLandingCell(publicRows, 2, colA);
-        if (a3 != null && String(a3).trim() !== '') {
-          const n = parseInt(String(a3).replace(/\s/g, ''), 10);
-          if (!Number.isNaN(n) && n >= 0) activeSlotsRaw = String(n);
+      for (const rowIndex of [0, 1, 2]) {
+        const v = getLandingCell(publicRows, rowIndex, colA);
+        if (v != null && String(v).trim() !== '') {
+          const n = parseInt(String(v).replace(/\s/g, ''), 10);
+          if (!Number.isNaN(n) && n >= 0) {
+            activeSlotsRaw = String(n);
+            break;
+          }
         }
       }
       if (activeSlotsRaw == null) {
