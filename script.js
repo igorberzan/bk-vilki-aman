@@ -385,18 +385,21 @@ function hideDemoDataNotice() {
   if (notice) notice.remove();
 }
 
+/** Смещение: API отдаёт строки со сдвигом вниз на 2, читаем на 2 строки выше. */
+const SLOT_ROW_OFFSET_UP = 2;
+
 /**
  * Парсинг листа ADMIN по актуальной структуре:
  * слот 1: строки 5–99 (сводка в 5, дни 6–99)
  * слот 2: строки 101–199 (сводка в 101, дни 102–199)
  * слот 3: строки 201–299 и т.д.
- * 0-based: слот 1 = индекс 4, слот 2 = 100, слот 3 = 200…
+ * 0-based со сдвигом вверх: слот 1 = индекс 4 - 2 = 2, слот 2 = 98, слот 3 = 198…
  */
 function processSlotsFromAdminOnly(adminRows) {
   const slots = [];
   for (let slotNumber = 1; slotNumber <= 10; slotNumber++) {
-    const rowIndex = slotNumber === 1 ? 4 : (slotNumber - 1) * 100; // строка 5 → 4, 101 → 100, 201 → 200
-    if (rowIndex >= adminRows.length) continue;
+    const rowIndex = (slotNumber === 1 ? 4 : (slotNumber - 1) * 100) - SLOT_ROW_OFFSET_UP; // на 2 строки выше
+    if (rowIndex < 0 || rowIndex >= adminRows.length) continue;
     const row = adminRows[rowIndex];
     if (!row || row.length < 2) continue;
     const participant = (row[1] != null && row[1] !== '') ? String(row[1]).trim() : '';
@@ -441,14 +444,14 @@ function parseSheetRows(rows) {
   return rows.map(row => row.c ? row.c.map(cell => cell?.v ?? null) : []);
 }
 
-/** ADMIN: B=участник, C=дней, D=дата, E=капитал, F=прибыль, G=%. PUBLIC: B=TG, D=нач.капитал, F=фиксация. Строки: слот 1=5, слот 2=101, слот 3=201… */
+/** ADMIN: B=участник, C=дней, D=дата, E=капитал, F=прибыль, G=%. PUBLIC: B=TG, D=нач.капитал, F=фиксация. Строки со сдвигом вверх на 2: слот 1=индекс 2, слот 2=98… */
 function processSlots(adminRows, publicRows) {
   const slots = [];
   for (let slotNumber = 1; slotNumber <= 10; slotNumber++) {
-    const summaryIndex = slotNumber === 1 ? 4 : (slotNumber - 1) * 100;
-    if (summaryIndex >= adminRows.length) continue;
+    const summaryIndex = (slotNumber === 1 ? 4 : (slotNumber - 1) * 100) - SLOT_ROW_OFFSET_UP;
+    if (summaryIndex < 0 || summaryIndex >= adminRows.length) continue;
     const adminRow = adminRows[summaryIndex];
-    const publicRow = publicRows[summaryIndex];
+    const publicRow = publicRows && summaryIndex < publicRows.length ? publicRows[summaryIndex] : null;
     if (!adminRow || adminRow.length < 2) continue;
     const participant = (adminRow[1] != null && adminRow[1] !== '') ? String(adminRow[1]).trim() : '';
     if (!participant || participant === 'Свободно' || participant.toLowerCase() === 'свободен') continue;
@@ -473,7 +476,7 @@ function processSlots(adminRows, publicRows) {
   return slots;
 }
 
-/** Дни: ADMIN D–H, только заполненные строки (слот 1: 6–99, слот 2: 102–199…) */
+/** Дни: ADMIN, строки сразу под сводкой слота (summaryRowIndex уже со сдвигом вверх на 2). */
 function extractDaysData(adminRows, summaryRowIndex) {
   const days = [];
   const start = summaryRowIndex + 1;
