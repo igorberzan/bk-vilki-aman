@@ -141,7 +141,7 @@ function showDashboard(userName) {
     window.landingRefreshInterval = null;
   }
   if (window.dashboardRefreshInterval) clearInterval(window.dashboardRefreshInterval);
-  window.dashboardRefreshInterval = setInterval(loadAllData, 30000);
+  window.dashboardRefreshInterval = setInterval(loadAllData, 15000); // обновление каждые 15 с — цифры подтягиваются из таблицы сразу
 }
 
 function showLanding() {
@@ -153,7 +153,7 @@ function showLanding() {
     window.dashboardRefreshInterval = null;
   }
   if (window.landingRefreshInterval) clearInterval(window.landingRefreshInterval);
-  window.landingRefreshInterval = setInterval(loadLandingCircleData, 60000);
+  window.landingRefreshInterval = setInterval(loadLandingCircleData, 30000); // круги и кэш лендинга — каждые 30 с
 }
 
 function animateDashboardCards() {
@@ -302,7 +302,14 @@ async function loadAllData() {
         hideDemoDataNotice();
         allSlotsData = slots;
         window.allSlots = slots;
-        updateDashboardUI(slots);
+        const stats = getAggregateStatsFromSheet(adminRows, publicRows, slots.length);
+        if (stats) {
+          setStatElement('total-capital', stats.totalCapitalStr);
+          setStatElement('total-earned', stats.totalEarnedStr);
+          setStatElement('avg-percent', stats.avgPercentStr);
+          setStatElement('active-slots', `${stats.activeSlotsCount}/10`);
+        }
+        updateSlotCards(slots);
         return slots;
       }
     } catch (e) {
@@ -319,7 +326,14 @@ async function loadAllData() {
         hideDemoDataNotice();
         allSlotsData = slots;
         window.allSlots = slots;
-        updateDashboardUI(slots);
+        const stats = getAggregateStatsFromSheet(adminRows, null, slots.length);
+        if (stats) {
+          setStatElement('total-capital', stats.totalCapitalStr);
+          setStatElement('total-earned', stats.totalEarnedStr);
+          setStatElement('avg-percent', stats.avgPercentStr);
+          setStatElement('active-slots', `${stats.activeSlotsCount}/10`);
+        }
+        updateSlotCards(slots);
         return slots;
       }
     } catch (e) {
@@ -844,6 +858,57 @@ function getLandingCell(rows, rowIndex, colIndex) {
   return row && colIndex < row.length ? row[colIndex] : null;
 }
 
+/**
+ * Агрегаты из таблицы в том же формате, что и в основных кругах (ADMIN M2, M3, M4; PUBLIC A3).
+ * Используется для карточек на дашборде, чтобы цифры совпадали с кругами.
+ */
+function getAggregateStatsFromSheet(adminRows, publicRows, fallbackActiveSlotsCount = null) {
+  if (!adminRows || adminRows.length === 0) return null;
+  const totalCapitalRaw = getLandingCell(adminRows, 0, 12);   // M2
+  const totalEarnedRaw = getLandingCell(adminRows, 1, 12);   // M3
+  const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // M4
+  let activeSlotsCount = fallbackActiveSlotsCount;
+  if (publicRows && publicRows.length > 0) {
+    const colA = 0;
+    for (let i = 0; i < publicRows.length - 1; i++) {
+      const label = String(getLandingCell(publicRows, i, colA) ?? '').trim();
+      if (label.indexOf('слотов') !== -1 || label.indexOf('Всего') !== -1) {
+        const nextVal = getLandingCell(publicRows, i + 1, colA);
+        if (nextVal != null && String(nextVal).trim() !== '') {
+          const n = parseInt(String(nextVal).replace(/\s/g, ''), 10);
+          if (!Number.isNaN(n) && n >= 0) {
+            activeSlotsCount = n;
+            break;
+          }
+        }
+      }
+    }
+    if (activeSlotsCount == null) {
+      for (const rowIndex of [2, 1, 0]) {
+        const v = getLandingCell(publicRows, rowIndex, 0);
+        if (v != null && String(v).trim() !== '') {
+          const n = parseInt(String(v).replace(/\s/g, ''), 10);
+          if (!Number.isNaN(n) && n >= 0) {
+            activeSlotsCount = n;
+            break;
+          }
+        }
+      }
+    }
+  }
+  const totalCapital = totalCapitalRaw != null && totalCapitalRaw !== '' ? parseFloat(String(totalCapitalRaw).replace(',', '.')) : null;
+  const totalEarned = totalEarnedRaw != null && totalEarnedRaw !== '' ? parseFloat(String(totalEarnedRaw).replace(',', '.')) : null;
+  const totalCapitalStr = totalCapital != null ? formatMoney(totalCapital) : '—';
+  const totalEarnedStr = totalEarned != null ? formatMoney(totalEarned, true) : '—';
+  const avgPercentStr = formatPercent(avgPercentRaw, true);
+  return {
+    totalCapitalStr,
+    totalEarnedStr,
+    avgPercentStr,
+    activeSlotsCount: activeSlotsCount != null ? activeSlotsCount : (fallbackActiveSlotsCount != null ? fallbackActiveSlotsCount : 0)
+  };
+}
+
 function formatPercent(value, fromSheet = false) {
   if (value == null || value === '') return '—';
   const str = String(value).trim().replace(',', '.');
@@ -978,9 +1043,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedUser = localStorage.getItem('bk_vilki_user');
   if (savedUser && dashboard.classList.contains('active')) {
     loadAllData();
-    window.dashboardRefreshInterval = setInterval(loadAllData, 30000);
+    window.dashboardRefreshInterval = setInterval(loadAllData, 15000);
   } else {
-    window.landingRefreshInterval = setInterval(loadLandingCircleData, 60000);
+    window.landingRefreshInterval = setInterval(loadLandingCircleData, 30000);
   }
 });
 
