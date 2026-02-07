@@ -870,15 +870,25 @@ function getAggregateStatsFromSheet(adminRows, publicRows, fallbackActiveSlotsCo
   let activeSlotsCount = fallbackActiveSlotsCount;
   if (publicRows && publicRows.length > 0) {
     const colA = 0;
-    for (let i = 0; i < publicRows.length - 1; i++) {
-      const label = String(getLandingCell(publicRows, i, colA) ?? '').trim();
-      if (label.indexOf('слотов') !== -1 || label.indexOf('Всего') !== -1) {
-        const nextVal = getLandingCell(publicRows, i + 1, colA);
-        if (nextVal != null && String(nextVal).trim() !== '') {
-          const n = parseInt(String(nextVal).replace(/\s/g, ''), 10);
-          if (!Number.isNaN(n) && n >= 0) {
-            activeSlotsCount = n;
-            break;
+    // Сначала явно читаем A3 (строка 3 листа PUBLIC) — там формула «всего слотов»
+    if (publicRows.length >= 3) {
+      const a3 = getLandingCell(publicRows, 2, colA);
+      if (a3 != null && String(a3).trim() !== '') {
+        const n = parseInt(String(a3).replace(/\s/g, ''), 10);
+        if (!Number.isNaN(n) && n >= 0) activeSlotsCount = n;
+      }
+    }
+    if (activeSlotsCount == null) {
+      for (let i = 0; i < publicRows.length - 1; i++) {
+        const label = String(getLandingCell(publicRows, i, colA) ?? '').trim();
+        if (label.indexOf('слотов') !== -1 || label.indexOf('Всего') !== -1) {
+          const nextVal = getLandingCell(publicRows, i + 1, colA);
+          if (nextVal != null && String(nextVal).trim() !== '') {
+            const n = parseInt(String(nextVal).replace(/\s/g, ''), 10);
+            if (!Number.isNaN(n) && n >= 0) {
+              activeSlotsCount = n;
+              break;
+            }
           }
         }
       }
@@ -963,19 +973,28 @@ async function loadLandingCircleData() {
     const avgPercentRaw = getLandingCell(adminRows, 2, 12);   // M4 — строка 4 (средняя доходность)
     const worstDayRaw = getLandingCell(adminRows, 0, 10);     // K2 — строка 2 (МИН % общий = худший день)
     const bestDayRaw = getLandingCell(adminRows, 1, 10);       // K3 — строка 3 (МАКС % общий = лучший день)
-    // PUBLIC A3 = число активных слотов (подпись "Всего слотов:" в A2, число в A3 — берём из строки после подписи)
+    // PUBLIC A3 = число активных слотов (в таблице: A2 = «Всего слотов:», A3 = формула, результат показываем везде)
     let activeSlotsRaw = null;
     if (publicRows && publicRows.length > 0) {
       const colA = 0;
-      for (let i = 0; i < publicRows.length - 1; i++) {
-        const label = String(getLandingCell(publicRows, i, colA) ?? '').trim();
-        if (label.indexOf('слотов') !== -1 || label.indexOf('Всего') !== -1) {
-          const nextVal = getLandingCell(publicRows, i + 1, colA);
-          if (nextVal != null && String(nextVal).trim() !== '') {
-            const n = parseInt(String(nextVal).replace(/\s/g, ''), 10);
-            if (!Number.isNaN(n) && n >= 0) {
-              activeSlotsRaw = nextVal;
-              break;
+      if (publicRows.length >= 3) {
+        const a3 = getLandingCell(publicRows, 2, colA);
+        if (a3 != null && String(a3).trim() !== '') {
+          const n = parseInt(String(a3).replace(/\s/g, ''), 10);
+          if (!Number.isNaN(n) && n >= 0) activeSlotsRaw = String(n);
+        }
+      }
+      if (activeSlotsRaw == null) {
+        for (let i = 0; i < publicRows.length - 1; i++) {
+          const label = String(getLandingCell(publicRows, i, colA) ?? '').trim();
+          if (label.indexOf('слотов') !== -1 || label.indexOf('Всего') !== -1) {
+            const nextVal = getLandingCell(publicRows, i + 1, colA);
+            if (nextVal != null && String(nextVal).trim() !== '') {
+              const n = parseInt(String(nextVal).replace(/\s/g, ''), 10);
+              if (!Number.isNaN(n) && n >= 0) {
+                activeSlotsRaw = nextVal;
+                break;
+              }
             }
           }
         }
