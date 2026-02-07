@@ -385,15 +385,18 @@ function hideDemoDataNotice() {
   if (notice) notice.remove();
 }
 
+/** API отдаёт строки со сдвигом вниз на 2: для строки 5 листа читаем индекс 4-2=2. */
+const SLOT_ROW_OFFSET_UP = 2;
+
 /**
- * Парсинг листа ADMIN по структуре таблицы:
- * слот 1: строка 5 (индекс 4), слот 2: строка 101 (индекс 100), слот 3: строка 201 (индекс 200)…
+ * Парсинг ADMIN: слот 1 = строка 5 (индекс 4 в листе, 4-2=2 в API), слот 2 = 101→98, слот 3 = 201→198…
+ * Формулы: B=участник, C=дней, D=дата, E=капитал, F=прибыль, G=%.
  */
 function processSlotsFromAdminOnly(adminRows) {
   const slots = [];
   for (let slotNumber = 1; slotNumber <= 10; slotNumber++) {
-    const rowIndex = slotNumber === 1 ? 4 : (slotNumber - 1) * 100;
-    if (rowIndex >= adminRows.length) continue;
+    const rowIndex = (slotNumber === 1 ? 4 : (slotNumber - 1) * 100) - SLOT_ROW_OFFSET_UP;
+    if (rowIndex < 0 || rowIndex >= adminRows.length) continue;
     const row = adminRows[rowIndex];
     if (!row || row.length < 2) continue;
     const participant = (row[1] != null && row[1] !== '') ? String(row[1]).trim() : '';
@@ -402,7 +405,7 @@ function processSlotsFromAdminOnly(adminRows) {
       number: slotNumber,
       participant: participant,
       startDate: row[3] != null ? String(row[3]) : '-',
-      daysWorked: row[2] != null ? String(row[2]) : '0',
+      daysWorked: (row[2] != null && String(row[2]).trim() !== '' && !isNaN(parseFloat(row[2]))) ? String(Math.round(parseFloat(row[2]))) : (row[2] != null ? String(row[2]) : '0'),
       entry: parseFloat(row[4]) || 0,
       current: parseFloat(row[4]) || 0,
       earned: parseFloat(row[5]) || 0,
@@ -438,12 +441,12 @@ function parseSheetRows(rows) {
   return rows.map(row => row.c ? row.c.map(cell => cell?.v ?? null) : []);
 }
 
-/** ADMIN: B=участник, C=дней, D=дата, E=капитал, F=прибыль, G=%. PUBLIC: B=TG, C=дата старта, D=нач.капитал, F=фиксация. Слот 1=строка 5 (индекс 4), слот 2=101 (100)… */
+/** ADMIN B5=участник, E5=текущий капитал, G5=%. PUBLIC B5=TG, C5=дата старта, D5=нач.капитал, F5=фиксация. Читаем на 2 строки выше (индекс 2 для слота 1). */
 function processSlots(adminRows, publicRows) {
   const slots = [];
   for (let slotNumber = 1; slotNumber <= 10; slotNumber++) {
-    const summaryIndex = slotNumber === 1 ? 4 : (slotNumber - 1) * 100;
-    if (summaryIndex >= adminRows.length) continue;
+    const summaryIndex = (slotNumber === 1 ? 4 : (slotNumber - 1) * 100) - SLOT_ROW_OFFSET_UP;
+    if (summaryIndex < 0 || summaryIndex >= adminRows.length) continue;
     const adminRow = adminRows[summaryIndex];
     const publicRow = publicRows && summaryIndex < publicRows.length ? publicRows[summaryIndex] : null;
     if (!adminRow || adminRow.length < 2) continue;
@@ -453,7 +456,7 @@ function processSlots(adminRows, publicRows) {
       number: slotNumber,
       participant: participant,
       startDate: (publicRow && publicRow[2] != null && String(publicRow[2]).trim() !== '') ? String(publicRow[2]) : (adminRow[3] != null ? String(adminRow[3]) : '-'),
-      daysWorked: adminRow[2] != null ? String(adminRow[2]) : '0',
+      daysWorked: (adminRow[2] != null && String(adminRow[2]).trim() !== '' && !isNaN(parseFloat(adminRow[2]))) ? String(Math.round(parseFloat(adminRow[2]))) : (adminRow[2] != null ? String(adminRow[2]) : '0'),
       entry: publicRow && publicRow[3] != null ? parseFloat(publicRow[3]) || 0 : parseFloat(adminRow[4]) || 0,
       current: parseFloat(adminRow[4]) || 0,
       earned: parseFloat(adminRow[5]) || 0,
