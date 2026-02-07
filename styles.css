@@ -961,10 +961,16 @@ body {
 }
 
 .modal-slot-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.modal-slot-col {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 .modal-slot-row {
@@ -1274,6 +1280,10 @@ body {
 
   .modal {
     padding: 30px 24px;
+  }
+
+  .modal-slot-info {
+    grid-template-columns: 1fr;
   }
 
   .modal-title {

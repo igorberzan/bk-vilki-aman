@@ -458,7 +458,7 @@ function processSlots(adminRows, publicRows) {
     const slotData = {
       number: slotNumber,
       participant: participant,
-      startDate: adminRow[3] != null ? String(adminRow[3]) : '-',
+      startDate: (publicRow && publicRow[2] != null && String(publicRow[2]).trim() !== '') ? String(publicRow[2]) : (adminRow[3] != null ? String(adminRow[3]) : '-'),
       daysWorked: adminRow[2] != null ? String(adminRow[2]) : '0',
       entry: publicRow && publicRow[3] != null ? parseFloat(publicRow[3]) || 0 : parseFloat(adminRow[4]) || 0,
       current: parseFloat(adminRow[4]) || 0,
@@ -637,7 +637,9 @@ function showSlotDetails(slotNumber) {
   const existingModal = document.querySelector('.modal-slot-details');
   if (existingModal) existingModal.remove();
 
-  const startDateFormatted = typeof slot.startDate === 'string' && slot.startDate !== '-' ? slot.startDate : formatSheetDate(slot.startDate);
+  const startDateFormatted = formatSheetDate(slot.startDate);
+  const avgPercentDisplay = slot.avgPercent != null ? (slot.avgPercent < 1 ? (slot.avgPercent * 100).toFixed(2) : slot.avgPercent.toFixed(2)) + '%' : '—';
+  const daysFiltered = (slot.days || []).slice(1);
 
   const modal = document.createElement('div');
   modal.className = 'modal-slot-details';
@@ -649,33 +651,37 @@ function showSlotDetails(slotNumber) {
         <button type="button" class="modal-slot-close" aria-label="Закрыть">✕</button>
       </div>
       <div class="modal-slot-info">
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Участник</span>
-          <span class="modal-slot-value">${escapeHtml(slot.participant)}</span>
+        <div class="modal-slot-col">
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Участник</span>
+            <span class="modal-slot-value">${escapeHtml(slot.participant)}</span>
+          </div>
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Логин TG</span>
+            <span class="modal-slot-value">${escapeHtml(slot.tgLogin) || '—'}</span>
+          </div>
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Дата старта</span>
+            <span class="modal-slot-value">${startDateFormatted}</span>
+          </div>
         </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Логин TG</span>
-          <span class="modal-slot-value">${escapeHtml(slot.tgLogin) || '—'}</span>
-        </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Дата старта</span>
-          <span class="modal-slot-value">${startDateFormatted}</span>
-        </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Начальный капитал</span>
-          <span class="modal-slot-value">${formatMoney(slot.entry)}</span>
-        </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Текущий капитал</span>
-          <span class="modal-slot-value">${formatMoney(slot.current)}</span>
-        </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Средний процент в день</span>
-          <span class="modal-slot-value">${slot.avgPercent != null ? slot.avgPercent + '%' : '—'}</span>
-        </div>
-        <div class="modal-slot-row">
-          <span class="modal-slot-label">Фиксация прибыли</span>
-          <span class="modal-slot-value">${slot.fixation != null ? formatMoney(slot.fixation, true) : '—'}</span>
+        <div class="modal-slot-col">
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Начальный капитал</span>
+            <span class="modal-slot-value">${formatMoney(slot.entry)}</span>
+          </div>
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Текущий капитал</span>
+            <span class="modal-slot-value">${formatMoney(slot.current)}</span>
+          </div>
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Средний процент в день</span>
+            <span class="modal-slot-value">${avgPercentDisplay}</span>
+          </div>
+          <div class="modal-slot-row">
+            <span class="modal-slot-label">Фиксация прибыли</span>
+            <span class="modal-slot-value">${slot.fixation != null ? formatMoney(slot.fixation, true) : '—'}</span>
+          </div>
         </div>
       </div>
       <button type="button" class="btn btn-ghost btn-daily-report" data-slot-number="${slot.number}">Смотреть ежедневный отчёт</button>
@@ -693,12 +699,12 @@ function showSlotDetails(slotNumber) {
               </tr>
             </thead>
             <tbody>
-              ${(slot.days || []).map(day => `
+              ${daysFiltered.map(day => `
                 <tr>
-                  <td>${day.date}</td>
+                  <td>${formatDayDate(day.date)}</td>
                   <td>${formatMoney(day.capital)}</td>
                   <td>${formatMoney(day.earned, true)}</td>
-                  <td>${day.percent}%</td>
+                  <td>${day.percent != null ? (day.percent < 1 ? (day.percent * 100).toFixed(2) : day.percent.toFixed(2)) + '%' : '—'}</td>
                   <td>${day.operations != null ? formatMoney(day.operations, true) : '—'}</td>
                 </tr>
               `).join('')}
@@ -755,15 +761,36 @@ function formatMoney(amount, showSign = false) {
 
 function formatSheetDate(dateValue) {
   if (dateValue == null || dateValue === '' || dateValue === '-') return '-';
-  if (typeof dateValue === 'string' && /^\d+(\.\d+)?$/.test(dateValue)) {
-    dateValue = parseFloat(dateValue);
+  const str = String(dateValue).trim();
+  const dateMatch = str.match(/Date\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+  if (dateMatch) {
+    const year = parseInt(dateMatch[1], 10);
+    const month = parseInt(dateMatch[2], 10);
+    const day = parseInt(dateMatch[3], 10);
+    const d = new Date(year, month, day);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}.${d.getFullYear()}`;
+  }
+  if (/^\d+(\.\d+)?$/.test(str)) {
+    const date = new Date((parseFloat(str) - 25569) * 86400 * 1000);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}.${date.getFullYear()}`;
   }
   if (typeof dateValue === 'number') {
     const date = new Date((dateValue - 25569) * 86400 * 1000);
-    return date.toLocaleDateString('ru-RU');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    return `${dd}.${mm}.${date.getFullYear()}`;
   }
   if (typeof dateValue === 'string') return dateValue;
   return '-';
+}
+
+function formatDayDate(dateStr) {
+  if (dateStr == null || dateStr === '' || dateStr === '-') return '—';
+  return formatSheetDate(dateStr);
 }
 
 // ========================================
