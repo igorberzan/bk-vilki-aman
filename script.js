@@ -621,6 +621,45 @@ function showSlotDetailsEmpty(slotNumber) {
   document.body.appendChild(modal);
 }
 
+/** Расчёт метрик для премиум-модалки слота (ROI, Win Rate, лучший день и т.д.) */
+function computeSlotModalStats(slot) {
+  const daysFiltered = (slot.days || []).slice(1);
+  const totalDays = daysFiltered.length;
+  const profitableDays = daysFiltered.filter(d => (d.earned || 0) > 0).length;
+  const totalEarned = slot.earned != null ? slot.earned : daysFiltered.reduce((s, d) => s + (d.earned || 0), 0);
+  const entry = slot.entry || 0;
+  const current = slot.current != null ? slot.current : (entry + totalEarned);
+  const roi = entry > 0 ? ((current - entry) / entry * 100) : 0;
+  const changeToStart = entry > 0 ? ((current - entry) / entry * 100) : 0;
+  const avgDayProfit = totalDays > 0 ? totalEarned / totalDays : 0;
+  const winRate = totalDays > 0 ? (profitableDays / totalDays * 100) : 0;
+  let bestDay = null;
+  if (daysFiltered.length > 0) {
+    const withEarned = daysFiltered.map(d => ({ ...d, earnedVal: d.earned || 0 }));
+    const best = withEarned.reduce((a, b) => a.earnedVal >= b.earnedVal ? a : b);
+    const pct = best.percent != null ? (best.percent < 1 ? best.percent * 100 : best.percent) : null;
+    bestDay = { earned: best.earnedVal, date: best.date, percent: pct };
+  }
+  const avgPercentDisplay = slot.avgPercent != null ? (slot.avgPercent < 1 ? (slot.avgPercent * 100).toFixed(2) : slot.avgPercent.toFixed(2)) : null;
+  return {
+    startDateFormatted: formatSheetDate(slot.startDate),
+    daysWorked: slot.daysWorked || String(totalDays),
+    avgPercentDisplay: avgPercentDisplay != null ? avgPercentDisplay + '%' : '—',
+    changeToStart,
+    totalEarned,
+    roi,
+    winRate,
+    profitableDays,
+    totalDays,
+    avgDayProfit,
+    bestDay,
+    entry,
+    current,
+    daysFiltered,
+    fixation: slot.fixation
+  };
+}
+
 function showSlotDetails(slotNumber) {
   const slot = allSlotsData.find(s => s.number === slotNumber);
   if (!slot) {
@@ -631,58 +670,99 @@ function showSlotDetails(slotNumber) {
   const existingModal = document.querySelector('.modal-slot-details');
   if (existingModal) existingModal.remove();
 
-  const startDateFormatted = formatSheetDate(slot.startDate);
-  const avgPercentDisplay = slot.avgPercent != null ? (slot.avgPercent < 1 ? (slot.avgPercent * 100).toFixed(2) : slot.avgPercent.toFixed(2)) + '%' : '—';
-  const daysFiltered = (slot.days || []).slice(1);
+  const st = computeSlotModalStats(slot);
+  const changeLabel = st.entry > 0 ? `+${st.changeToStart.toFixed(0)}% к старту` : '';
+  const bestDaySub = st.bestDay ? `${formatDayDate(st.bestDay.date)}${st.bestDay.percent != null ? ` (${st.bestDay.percent.toFixed(2)}%)` : ''}` : '—';
 
   const modal = document.createElement('div');
-  modal.className = 'modal-slot-details';
+  modal.className = 'modal-slot-details slot-modal';
   modal.innerHTML = `
-    <div class="modal-slot-backdrop"></div>
-    <div class="modal-slot-content">
-      <div class="modal-slot-header">
-        <h2>Слот ${slot.number}</h2>
-        <button type="button" class="modal-slot-close" aria-label="Закрыть">✕</button>
-      </div>
-      <div class="modal-slot-info">
-        <div class="modal-slot-col">
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Участник</span>
-            <span class="modal-slot-value">${escapeHtml(slot.participant)}</span>
-          </div>
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Логин TG</span>
-            <span class="modal-slot-value">${escapeHtml(slot.tgLogin) || '—'}</span>
-          </div>
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Дата старта</span>
-            <span class="modal-slot-value">${startDateFormatted}</span>
-          </div>
+    <div class="modal-slot-backdrop slot-modal-backdrop"></div>
+    <div class="modal-container">
+      <header class="slot-modal-header">
+        <div class="slot-modal-title-wrap">
+          <h2 class="slot-modal-title">Слот ${slot.number} • ${escapeHtml(slot.participant || 'Участник')}</h2>
+          <span class="slot-modal-tg">${escapeHtml(slot.tgLogin) || '—'}</span>
         </div>
-        <div class="modal-slot-col">
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Начальный капитал</span>
-            <span class="modal-slot-value">${formatMoney(slot.entry)}</span>
-          </div>
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Текущий капитал</span>
-            <span class="modal-slot-value">${formatMoney(slot.current)}</span>
-          </div>
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Средний процент в день</span>
-            <span class="modal-slot-value">${avgPercentDisplay}</span>
-          </div>
-          <div class="modal-slot-row">
-            <span class="modal-slot-label">Фиксация прибыли</span>
-            <span class="modal-slot-value">${slot.fixation != null ? formatMoney(slot.fixation, true) : '—'}</span>
-          </div>
+        <button type="button" class="modal-slot-close slot-modal-close" aria-label="Закрыть">✕</button>
+      </header>
+
+      <div class="slot-stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">НАЧАЛЬНЫЙ КАПИТАЛ</div>
+          <div class="stat-value">${formatMoney(st.entry)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ТЕКУЩИЙ КАПИТАЛ</div>
+          <div class="stat-value stat-value-accent">${formatMoney(st.current)}</div>
+          ${changeLabel ? `<div class="stat-change">${changeLabel}</div>` : ''}
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ДАТА СТАРТА</div>
+          <div class="stat-value stat-value-sm">${st.startDateFormatted}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ДНЕЙ В РАБОТЕ</div>
+          <div class="stat-value">${st.daysWorked}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">СРЕДНИЙ % В ДЕНЬ</div>
+          <div class="stat-value stat-value-accent">${st.avgPercentDisplay}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ФИКСАЦИЯ ПРИБЫЛИ</div>
+          <div class="stat-value">${st.fixation != null ? formatMoney(st.fixation) : '0 ₽'}</div>
         </div>
       </div>
-      <button type="button" class="btn btn-ghost btn-daily-report" data-slot-number="${slot.number}">Смотреть ежедневный отчёт</button>
-      <div class="modal-slot-days-wrap" hidden>
-        <h4 class="modal-days-title">Ежедневный отчёт</h4>
-        <div class="modal-days-scroll">
-          <table class="days-table">
+
+      <section class="chart-section">
+        <div class="chart-header">
+          <div class="chart-title">Динамика капитала</div>
+        </div>
+        <div class="chart-container">
+          <canvas id="capitalChart"></canvas>
+        </div>
+      </section>
+
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="summary-label">Всего заработано</div>
+          <div class="summary-value summary-value-profit">${formatMoney(st.totalEarned, true)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Лучший день</div>
+          <div class="summary-value summary-value-profit">${st.bestDay ? formatMoney(st.bestDay.earned, true) : '—'}</div>
+          <div class="summary-sublabel">${bestDaySub}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">ROI</div>
+          <div class="summary-value summary-value-profit">+${st.roi.toFixed(1)}%</div>
+        </div>
+      </div>
+
+      <div class="performance-grid">
+        <div class="perf-item">
+          <div class="perf-value">${st.totalDays > 0 ? st.winRate.toFixed(0) : 0}%</div>
+          <div class="perf-label">Win Rate</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-value">${st.profitableDays}/${st.totalDays}</div>
+          <div class="perf-label">Прибыльных дней</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-value summary-value-profit">${formatMoney(st.avgDayProfit, true)}</div>
+          <div class="perf-label">Средний день</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-value">${st.bestDay && st.bestDay.percent != null ? st.bestDay.percent.toFixed(2) + '%' : '—'}</div>
+          <div class="perf-label">Лучший день %</div>
+        </div>
+      </div>
+
+      <div class="daily-report">
+        <h4 class="daily-report-title">Ежедневный отчёт</h4>
+        <div class="daily-report-scroll">
+          <table class="days-table days-table-premium">
             <thead>
               <tr>
                 <th>Дата</th>
@@ -693,15 +773,18 @@ function showSlotDetails(slotNumber) {
               </tr>
             </thead>
             <tbody>
-              ${daysFiltered.map(day => `
+              ${st.daysFiltered.map(day => {
+                const pct = day.percent != null ? (day.percent < 1 ? (day.percent * 100).toFixed(2) : day.percent.toFixed(2)) + '%' : '—';
+                return `
                 <tr>
                   <td>${formatDayDate(day.date)}</td>
                   <td>${formatMoney(day.capital)}</td>
-                  <td>${formatMoney(day.earned, true)}</td>
-                  <td>${day.percent != null ? (day.percent < 1 ? (day.percent * 100).toFixed(2) : day.percent.toFixed(2)) + '%' : '—'}</td>
-                  <td>${day.operations != null ? formatMoney(day.operations, true) : '—'}</td>
+                  <td><span class="cell-profit">${formatMoney(day.earned, true)}</span></td>
+                  <td><span class="percent-badge">${pct}</span></td>
+                  <td class="cell-muted">${day.operations != null ? formatMoney(day.operations, true) : '0 ₽'}</td>
                 </tr>
-              `).join('')}
+              `;
+              }).join('')}
             </tbody>
           </table>
         </div>
@@ -709,28 +792,90 @@ function showSlotDetails(slotNumber) {
     </div>
   `;
 
-  const backdrop = modal.querySelector('.modal-slot-backdrop');
-  const closeBtn = modal.querySelector('.modal-slot-close');
-  const content = modal.querySelector('.modal-slot-content');
-  const daysWrap = modal.querySelector('.modal-slot-days-wrap');
-  const btnDaily = modal.querySelector('.btn-daily-report');
+  const backdrop = modal.querySelector('.slot-modal-backdrop');
+  const closeBtn = modal.querySelector('.slot-modal-close');
 
   function close() {
+    if (modal.capitalChartInstance) modal.capitalChartInstance.destroy();
     closeSlotDetails();
   }
-
-  btnDaily.addEventListener('click', () => {
-    daysWrap.hidden = false;
-    modal.classList.add('expanded');
-  });
 
   backdrop.addEventListener('click', close);
   closeBtn.addEventListener('click', close);
   document.body.appendChild(modal);
+
+  const canvas = document.getElementById('capitalChart');
+  if (typeof Chart !== 'undefined' && canvas && st.daysFiltered.length > 0) {
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(0, 217, 163, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 217, 163, 0)');
+    const labels = st.daysFiltered.map(d => {
+      const str = formatDayDate(d.date);
+      if (str === '—' || !str) return str;
+      return str.length >= 10 ? str.slice(0, 5) : str;
+    });
+    const data = st.daysFiltered.map(d => d.capital || 0);
+    modal.capitalChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Капитал',
+          data,
+          borderColor: '#00D9A3',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1A1F2E',
+            borderColor: 'rgba(255,255,255,0.1)',
+            callbacks: {
+              label: function(ctx) {
+                const v = ctx.raw;
+                return new Intl.NumberFormat('ru-RU').format(v) + ' ₽';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8B92A8', maxTicksLimit: 8 }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#8B92A8',
+              callback: function(v) {
+                if (v >= 1000000) return (v / 1000000) + 'M';
+                if (v >= 1000) return (v / 1000) + 'K';
+                return v;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 }
 
 function closeSlotDetails() {
   const modal = document.querySelector('.modal-slot-details');
+  if (modal && modal.capitalChartInstance) {
+    modal.capitalChartInstance.destroy();
+    modal.capitalChartInstance = null;
+  }
   if (modal) modal.remove();
 }
 
